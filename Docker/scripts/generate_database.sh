@@ -1,29 +1,28 @@
 #!/bin/bash
 
-# Importa funções de ambiente
+# Carrega funções de ambiente se o DOCKER_ENV não estiver setado como "true"
 source ./Docker/scripts/env_functions.sh
 
-# Se não estiver em ambiente Docker, carrega variáveis
 if [ "$DOCKER_ENV" != "true" ]; then
     export_env_vars
 fi
 
-# Verifica se o provider é PostgreSQL ou MySQL
+# Verifica se o provider é postgresql ou mysql (ambos suportados pelo script)
 if [[ "$DATABASE_PROVIDER" == "postgresql" || "$DATABASE_PROVIDER" == "mysql" ]]; then
-    export DATABASE_URL
     echo "Generating database for $DATABASE_PROVIDER"
     echo "Database URL: $DATABASE_URL"
 
-    # Gera o client Prisma usando o schema.prisma correto
-    npx prisma generate --schema ./prisma/schema.prisma
+    # Executa as migrações usando Prisma
+    npx prisma migrate deploy --schema ./prisma/schema.prisma
 
+    # Verifica se deu erro ao rodar a migração
     if [ $? -ne 0 ]; then
-        echo "❌ Prisma generate failed"
+        echo "❌ Prisma migrate failed"
         exit 1
     else
-        echo "✅ Prisma generate succeeded"
+        echo "✅ Prisma migrate succeeded"
     fi
 else
-    echo "❌ Error: Database provider '$DATABASE_PROVIDER' invalid."
+    echo "❌ Error: Database provider '$DATABASE_PROVIDER' is invalid. Use 'postgresql' or 'mysql'."
     exit 1
 fi
