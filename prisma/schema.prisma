@@ -7,34 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum InstanceConnectionStatus {
-  open
-  close
-  connecting
-}
-
-enum DeviceMessage {
-  ios
-  android
-  waweb
-  unknown
-  desktop
-}
-
-enum SessionStatus {
-  connected
-  disconnected
-}
-
-enum TriggerType {
-  all
-  keyword
-  advanced
-}
-
-enum TriggerOperator {
-  contains
-  equals
-  startsWith
-  endsWith
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  name  String?
 }
