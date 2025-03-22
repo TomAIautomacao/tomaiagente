@@ -1,25 +1,26 @@
 #!/bin/bash
 
+# Carrega funções auxiliares (mantém o padrão)
 source ./Docker/scripts/env_functions.sh
 
+# Se não estiver rodando em container, carrega variáveis
 if [ "$DOCKER_ENV" != "true" ]; then
     export_env_vars
 fi
 
+# Validação do provider
 if [[ "$DATABASE_PROVIDER" == "postgresql" || "$DATABASE_PROVIDER" == "mysql" ]]; then
-    echo "🚀 Gerando banco de dados para: $DATABASE_PROVIDER"
+    echo "🔧 Gerando banco de dados para: $DATABASE_PROVIDER"
     echo "🔗 URL do banco: $DATABASE_URL"
 
-    export DATABASE_URL
-
-    npx prisma generate --schema=prisma/schema.prisma
+    # Executa migration
     npx prisma migrate deploy --schema=prisma/schema.prisma
 
     if [ $? -ne 0 ]; then
         echo "❌ Erro ao rodar prisma migrate"
         exit 1
     else
-        echo "✅ Migrations aplicadas com sucesso!"
+        echo "✅ Prisma migrate executado com sucesso!"
     fi
 else
     echo "❌ DATABASE_PROVIDER inválido: $DATABASE_PROVIDER"
